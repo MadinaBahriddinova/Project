@@ -36,43 +36,43 @@ def load_and_decode(entry):
     df = pd.read_csv(file_path)
 
     # Decode column names using mapping
-    decoded_columns = {
+    columns = {
         col: entry["columns"].get(col.split("-")[-1], col)
         for col in df.columns
     }
-    df.rename(columns=decoded_columns, inplace=True)
+    df.rename(columns=columns, inplace=True)
     return df
 
 # Loop through each table entry and decode
-decoded_tables = {}
+tables = {}
 for table_id, entry in column_map.items():
     if table_id in {"BLCK", "FRD", "VIP"}:
         continue  # skip derived tables for now
     print(f"Loading {entry['table']} from {entry['file']}")
     df = load_and_decode(entry)
     if df is not None:
-        decoded_tables[entry["table"]] = df
+        tables[entry["table"]] = df
 
 # Save decoded versions (optional)
-for table_name, df in decoded_tables.items():
-    df.to_csv(f"decoded_{table_name}.csv", index=False)
-    print(f"Decoded table saved: decoded_{table_name}.csv")
+for table_name, df in tables.items():
+    df.to_csv(f"{table_name}.csv", index=False)
+    print(f"Decoded table saved: {table_name}.csv")
 
 # Users
-users = decoded_tables["users"]
+users = tables["users"]
 users["created_at"] = pd.to_datetime(users["created_at"], errors="coerce")
 users["last_active_at"] = pd.to_datetime(users["last_active_at"], errors="coerce")
 users["is_vip"] = users["is_vip"].astype(bool)
 users["total_balance"] = pd.to_numeric(users["total_balance"], errors="coerce")
 
 # Cards
-cards = decoded_tables["cards"]
+cards = tables["cards"]
 cards["created_at"] = pd.to_datetime(cards["created_at"], errors="coerce")
 cards["balance"] = pd.to_numeric(cards["balance"], errors="coerce")
 cards["limit_amount"] = pd.to_numeric(cards["limit_amount"], errors="coerce")
 
 # Transactions
-transactions = decoded_tables["transactions"]
+transactions = tables["transactions"]
 transactions["created_at"] = pd.to_datetime(transactions["created_at"], errors="coerce")
 transactions["amount"] = pd.to_numeric(transactions["amount"], errors="coerce")
 
@@ -157,8 +157,6 @@ def log_ingestion_metadata(
     conn.commit()
     cursor.close()
     conn.close()
-
-
 
 
 
