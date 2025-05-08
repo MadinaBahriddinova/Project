@@ -29,7 +29,7 @@ with open("column_map.json") as f:
 def load_and_decode(entry):
     file_path = entry["file"]
     if not os.path.exists(file_path):
-        print(f"⚠️ File not found: {file_path}")
+        print(f"File not found: {file_path}")
         return None
 
     # Load CSV
@@ -48,7 +48,7 @@ decoded_tables = {}
 for table_id, entry in column_map.items():
     if table_id in {"BLCK", "FRD", "VIP"}:
         continue  # skip derived tables for now
-    print(f"📥 Loading {entry['table']} from {entry['file']}")
+    print(f"Loading {entry['table']} from {entry['file']}")
     df = load_and_decode(entry)
     if df is not None:
         decoded_tables[entry["table"]] = df
@@ -56,7 +56,7 @@ for table_id, entry in column_map.items():
 # Save decoded versions (optional)
 for table_name, df in decoded_tables.items():
     df.to_csv(f"decoded_{table_name}.csv", index=False)
-    print(f"✅ Decoded table saved: decoded_{table_name}.csv")
+    print(f"Decoded table saved: decoded_{table_name}.csv")
 
 # Users
 users = decoded_tables["users"]
@@ -92,10 +92,10 @@ users["email"].fillna("MISSING", inplace=True)
 
 cards["exceeds_limit"] = cards["balance"] > cards["limit_amount"]
 transactions["flagged_large_txn"] = transactions["amount"] > 10000
-print("🔍 Cards exceeding limit:")
+print("Cards exceeding limit:")
 print(cards[cards["exceeds_limit"]])
 
-print("\n🔍 Flagged transactions:")
+print("Flagged transactions:")
 print(transactions[transactions["flagged_large_txn"]])
 
 # Create 'users' table
